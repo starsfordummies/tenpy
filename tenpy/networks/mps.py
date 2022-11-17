@@ -3106,12 +3106,13 @@ class MPS:
                           inner_labels=['vR', 'vL'])
 
         # FIXME isn't this better ?  
-        #if renormalize:
-        #    S = S / np.linalg.norm(S)
+        if renormalize:
+            S = S / np.linalg.norm(S)
 
-        if not renormalize:
-            self.norm = self.norm * np.linalg.norm(S)
-        S = S / np.linalg.norm(S)  # normalize
+        #if not renormalize:
+        #    self.norm = self.norm * np.linalg.norm(S)
+        #S = S / np.linalg.norm(S)  # normalize
+
         self.set_SL(L - 1, S)
         self.set_B(L - 1, V.split_legs(1), form='B')
         for i in range(L - 2, -1, -1):
@@ -4038,7 +4039,7 @@ class MPS:
                 B = npc.tensordot(r, B, axes=('vR', 'vL'))
             
             #Stefano hack: one additional QR ?
-            print("one more QR?")
+            #print("one more QR?")
             B = B.combine_legs(['vL', 'p'])
             q, r = npc.qr(B, inner_labels=['vR', 'vL'])
             B = q.split_legs()
