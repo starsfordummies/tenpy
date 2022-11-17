@@ -3104,6 +3104,11 @@ class MPS:
         U, S, V = npc.svd(M.combine_legs(['vR'] + self._p_label, qconj=-1),
                           cutoff=cutoff,
                           inner_labels=['vR', 'vL'])
+
+        # FIXME isn't this better ?  
+        #if renormalize:
+        #    S = S / np.linalg.norm(S)
+
         if not renormalize:
             self.norm = self.norm * np.linalg.norm(S)
         S = S / np.linalg.norm(S)  # normalize
@@ -4023,6 +4028,7 @@ class MPS:
         if self.bc == 'finite':
             # Do QR starting from the left
             B = self.get_B(0, form='Th')
+            
             for i in range(self.L - 1):
                 B = B.combine_legs(['vL', 'p'])
                 q, r = npc.qr(B, inner_labels=['vR', 'vL'])
@@ -4030,6 +4036,13 @@ class MPS:
                 self.set_B(i, B, form=None)
                 B = self.get_B(i + 1, form='B')
                 B = npc.tensordot(r, B, axes=('vR', 'vL'))
+            
+            #Stefano hack: one additional QR ?
+            print("one more QR?")
+            B = B.combine_legs(['vL', 'p'])
+            q, r = npc.qr(B, inner_labels=['vR', 'vL'])
+            B = q.split_legs()
+
             # Do SVD from right to left & truncate
             for i in range(self.L - 1, 0, -1):
                 B = B.combine_legs(['p', 'vR'])
