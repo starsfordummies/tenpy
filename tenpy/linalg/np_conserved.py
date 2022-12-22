@@ -3500,11 +3500,6 @@ def tensordot(a, b, axes=2):
     one_block = (a.stored_blocks == 1 and b.stored_blocks == 1)
     if axes == a.rank and axes == b.rank:
         return _inner_worker(a, b, False)  # full contraction yields a single number
-    # Stefano change: I shifted the elif(axes=0) block here,
-    # otherwise things weren't quite right 
-    elif axes == 0:
-        return outer(a, b)  # no sum necessary
-    #end stefano change
     elif no_block or one_block:
         cut_a = a.rank - axes
         res = Array(a.legs[:cut_a] + b.legs[axes:], np.find_common_type([a.dtype, b.dtype], []),
@@ -3521,6 +3516,8 @@ def tensordot(a, b, axes=2):
                 res._qdata = c_qdata
                 res._qdata_sorted = True
             # else: zero
+    elif axes == 0:
+        return outer(a, b)  # no sum necessary
     else:
         # #### the main work
         res = _tensordot_worker(a, b, axes)
