@@ -622,12 +622,20 @@ class MPO:
             U1[:, IdL, :, :] = U1[:, IdL, :, :] + dt * U1[:, IdR, :, :]
             keep = np.ones(U1.shape[1], dtype=bool)
             keep[IdR] = False
+
+            """ Original 
             U1.iproject(keep, 1)
             if self.finite and i + 1 == self.L:
                 keep = np.ones(U2.shape[0], dtype=bool)
                 assert self.IdR[0] is not None
                 keep[self.IdR[0]] = False
             U2.iproject(keep, 0)
+            """
+
+            """ Stefano messup: """
+            if self.finite and i + 1 < self.L:
+                U1.iproject(keep, 1)
+                U2.iproject(keep, 0)
 
             if IdL > IdR:
                 IdLR.append(IdL - 1)
@@ -1053,7 +1061,8 @@ class MPO:
         # TODO: zipup method infinite?
         raise ValueError("Unknown compression method: " + repr(method))
 
-    def apply_naively(self, psi):
+    # Stefano modification 8/2/23 : add 'inform' param for working with non-canon
+    def apply_naively(self, psi, inform='B'):
         """Applies an MPO to an MPS (in place) naively, without compression.
 
         This function simply contracts the `W` tensors of the MPO to the `B` tensors of the
@@ -1076,7 +1085,7 @@ class MPO:
         if psi.L != self.L:
             raise ValueError("Length of MPS and MPO not the same")
         for i in range(psi.L):
-            B = npc.tensordot(psi.get_B(i, 'B'), self.get_W(i), axes=('p', 'p*'))
+            B = npc.tensordot(psi.get_B(i, inform), self.get_W(i), axes=('p', 'p*'))
             if i == 0 and bc == 'finite':
                 B = B.take_slice(self.get_IdL(i), 'wL')
                 B = B.combine_legs(['wR', 'vR'], qconj=[-1])
@@ -1092,7 +1101,7 @@ class MPO:
                 B.ireplace_labels(['(wL.vL)', '(wR.vR)'], ['vL', 'vR'])
                 B.legs[B.get_leg_index('vL')] = B.get_leg('vL').to_LegCharge()
                 B.legs[B.get_leg_index('vR')] = B.get_leg('vR').to_LegCharge()
-            psi.set_B(i, B, 'B')
+            psi.set_B(i, B, inform)
 
         if bc == 'infinite':
             # calculate (rather arbitrary) guess for S[0] (no we don't like it either)
