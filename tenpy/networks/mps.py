@@ -3080,7 +3080,7 @@ class MPS:
             # ignore any 'S' and canonical form
             M = self.get_B(0, form=None)
             form = None
-            print("ignoring the S, not canon")
+            logging.info("ignoring the S, not canon")
         else:
             # we actually had a canonical form before, so we should *not* ignore the 'S'
             M = self.get_B(0, form='Th')
