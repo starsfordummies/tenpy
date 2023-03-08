@@ -3061,6 +3061,9 @@ class MPS:
             The unitaries defining the new left and right Schmidt states in terms of the old ones,
             with legs ``'vL', 'vR'``.
         """
+        ### STEFANO
+        #print(f"Called canon_form(), current chis = {self.chi} ")
+
         assert (self.finite)
         L = self.L
         assert (L > 2)  # otherwise implement yourself...
@@ -3130,6 +3133,10 @@ class MPS:
             assert len(S) == 1
             self._B[0] *= U[0, 0]  # just a trivial phase factor, but better keep it
         # done with getting to canonical form
+        
+        ### STEFANO
+        #print(f"End canon_form(), current chis = {self.chi} ")
+        
         if envs_to_update is not None and self.bc == 'segment':
             VR = VR_segment
             for env in envs_to_update:
@@ -4045,10 +4052,12 @@ class MPS:
                 B = npc.tensordot(r, B, axes=('vR', 'vL'))
             
             #Stefano hack: one additional QR ?
-            print("one more QR?")
-            B = B.combine_legs(['vL', 'p'])
-            q, r = npc.qr(B, inner_labels=['vR', 'vL'])
-            B = q.split_legs()
+            if self.L > 100:
+                print("one more QR?")
+                B = B.combine_legs(['vL', 'p'])
+                q, r = npc.qr(B, inner_labels=['vR', 'vL'])
+                B = q.split_legs()
+            #end Stefano hack
 
             # Do SVD from right to left & truncate
             for i in range(self.L - 1, 0, -1):
