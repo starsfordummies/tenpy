@@ -3532,8 +3532,7 @@ def svd(a,
         cutoff=None,
         qtotal_LR=[None, None],
         inner_labels=[None, None],
-        inner_qconj=+1,
-        ste_maxchi=0):
+        inner_qconj=+1):
     """Singualar value decomposition of an Array `a`.
 
     Factorizes ``U, S, VH = svd(a)``, such that ``a = U*diag(S)*VH`` (where ``*`` stands for
@@ -3607,7 +3606,7 @@ def svd(a,
     # the main work
     overwrite_a = (len(piped_axes) > 0)
     U, S, VH = _svd_worker(a, full_matrices, compute_uv, overwrite_a, cutoff, qtotal_LR,
-                           inner_qconj, ste_maxchi)
+                           inner_qconj)
     if not compute_uv:
         return S
 
@@ -4719,7 +4718,7 @@ def _tensordot_worker(a, b, axes):
     return res
 
 
-def _svd_worker(a, full_matrices, compute_uv, overwrite_a, cutoff, qtotal_LR, inner_qconj, ste_maxchi):
+def _svd_worker(a, full_matrices, compute_uv, overwrite_a, cutoff, qtotal_LR, inner_qconj):
     """Main work of svd.
 
     Assumes that `a` is 2D and completely blocked.
@@ -4758,12 +4757,6 @@ def _svd_worker(a, full_matrices, compute_uv, overwrite_a, cutoff, qtotal_LR, in
             raise ValueError("NaN in S: " + str(np.sum(np.isnan(S_b))))
         if cutoff is not None:
             keep = (S_b > cutoff)  # bool array
-
-            # STEFANO HACK: truncate at a given chimax 
-            if 0 < ste_maxchi < len(S_b[keep]):
-                keep[ste_maxchi:] = False
-            #END STEFANO HACK
-                
             S_b = S_b[keep]
             if compute_uv:
                 U_b = U_b[:, keep]
