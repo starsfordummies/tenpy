@@ -4044,11 +4044,13 @@ class MPS:
                 B = self.get_B(i + 1, form='B')
                 B = npc.tensordot(r, B, axes=('vR', 'vL'))
             
-            #Stefano hack: one additional QR ?
-            print("one more QR?")
-            B = B.combine_legs(['vL', 'p'])
-            q, r = npc.qr(B, inner_labels=['vR', 'vL'])
-            B = q.split_legs()
+            #Stefano hack: one additional QR for longer networks ?
+            if self.L > 100:
+                print("one more QR?")
+                B = B.combine_legs(['vL', 'p'])
+                q, r = npc.qr(B, inner_labels=['vR', 'vL'])
+                B = q.split_legs()
+            #end Stefano hack
 
             # Do SVD from right to left & truncate
             for i in range(self.L - 1, 0, -1):
