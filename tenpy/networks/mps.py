@@ -158,7 +158,7 @@ logger = logging.getLogger(__name__)
 
 from ..linalg import np_conserved as npc
 from ..linalg import sparse
-from ..linalg.lanczos import Arnoldi
+from ..linalg.krylov_based import Arnoldi
 from .site import GroupedSite, group_sites
 from ..tools.misc import to_iterable, to_array, get_recursive
 from ..tools.math import lcm, speigs, entropy
@@ -179,11 +179,10 @@ class BaseMPSExpectationValue(metaclass=ABCMeta):
     These are calculated in :class:`MPSEnvironment`.
     For "standard" expectation values ``<psi|ops|psi>``, the environments are trivial identities
     due to the canonical from.
-    """
 
-    def __init__(self, sites):
-        self.sites = sites
-        self.L = len(sites)
+    Subclasses need to have the attributes `sites`, `L`, `bc`, `finite`.
+    See :class:`MPS` for details.
+    """
 
     def expectation_value(self, ops, sites=None, axes=None):
         """Expectation value ``<bra|ops|ket>`` of (n-site) operator(s).
