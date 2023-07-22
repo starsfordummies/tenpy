@@ -627,20 +627,20 @@ class MPO:
             keep = np.ones(U1.shape[1], dtype=bool)
             keep[IdR] = False
 
-            """ Original 
+            """ Original """ 
             U1.iproject(keep, 1)
             if self.finite and i + 1 == self.L:
                 keep = np.ones(U2.shape[0], dtype=bool)
                 assert self.IdR[0] is not None
                 keep[self.IdR[0]] = False
             U2.iproject(keep, 0)
-            """
+            
 
-            """ Stefano messup: """
+            """ Stefano messup: 
             if self.finite and i + 1 < self.L:
                 U1.iproject(keep, 1)
                 U2.iproject(keep, 0)
-
+            """
             if IdL > IdR:
                 IdLR.append(IdL - 1)
             else:
